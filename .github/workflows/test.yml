@@ -20,5 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./
+        id: version
         with:
-          milliseconds: 1000
+          rush_path: './__tests__/test-rush'
+
+      - name: Show markdown
+        run: echo "nextBump is ${{ steps.version.outputs.next_bump }}"

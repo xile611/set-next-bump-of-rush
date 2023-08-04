@@ -1,11 +1,29 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Set nextBump of rush'
+description: 'validate the nextBump of rush version policies and set the nextBump by config'
+author: 'xile611'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  rush_path:
+    required: false
+    description: The root path of a rush project
+    default: './'
+  policy_name:
+    required: false
+    description: the policy name to check
+  write_next_bump:
+    required: false
+    description: wether or not write the next bump
+  release_version:
+    required: false
+    description: The version to be released
+  is_prerelease:
+    required: false
+    description: set is prerelease version or not
+outputs:
+  next_bump: # id of the output
+    description: 'the next bump'
 runs:
   using: 'node16'
   main: 'dist/index.js'
+branding:
+  icon: 'align-left'
+  color: 'yellow'
