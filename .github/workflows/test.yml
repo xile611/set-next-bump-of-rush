@@ -23,6 +23,16 @@ jobs:
         id: version
         with:
           rush_path: './__tests__/test-rush'
+          is_prelease: 'true'
 
       - name: Show markdown
         run: echo "nextBump is ${{ steps.version.outputs.next_bump }}"
+
+      - uses: ./
+        id: version2
+        with:
+          rush_path: './__tests__/test-rush'
+          release_version: '2.0.0'
+
+      - name: Show markdown
+        run: echo "nextBump is ${{ steps.version2.outputs.next_bump }}"

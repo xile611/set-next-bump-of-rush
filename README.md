@@ -18,12 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Collect changlog
-        uses: xile611/collect-rush-changlog@v1
-        id: changlog
+      - name: read next_bump
+        id: next_bump
+        uses: xile611/set-next-bump-of-rush@main
+        with:
+          rush_path: './__tests__/test-rush'
+          is_prelease: 'true'
 
       - name: Show markdown
-        run: echo "Version is ${{ steps.changlog.outputs.markdown }}"
+        run: echo "Version is ${{ steps.next_bump.outputs.next_bump }}"
 ```
 
 ### inputs
