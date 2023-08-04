@@ -1,1 +1,8 @@
-[{"definitionName":"lockStepVersion","policyName":"test","version":"0.5.2","nextBump":"major"}]
+[
+  {
+    "definitionName": "lockStepVersion",
+    "policyName": "test",
+    "version": "0.5.2",
+    "nextBump": "prerelease"
+  }
+]
