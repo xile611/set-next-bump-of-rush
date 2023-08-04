@@ -7,15 +7,6 @@ import {
 
 async function run(): Promise<void> {
   try {
-    console.log(
-      'rush_path',
-      core.getInput('rush_path'),
-      'is_prerelease',
-      core.getInput('is_prerelease'),
-      'release_version',
-      core.getInput('release_version'),
-      core.getInput('write_next_bump')
-    )
     const rushPath = core.getInput('rush_path')
     const policyName = core.getInput('policy_name')
     const releaseVersion = core.getInput('release_version')

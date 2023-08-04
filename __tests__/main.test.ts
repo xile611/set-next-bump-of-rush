@@ -60,3 +60,21 @@ test('test run when set is_prerelease', () => {
       .includes('::set-output name=next_bump::minor')
   ).toBeTruthy()
 })
+
+test('test run when set is_prerelease', () => {
+  process.env['INPUT_RUSH_PATH'] = './__tests__/test-rush-2'
+  process.env['INPUT_IS_PRERELEASE'] = 'false'
+  process.env['INPUT_RELEASE_VERSION'] = '2.0.0'
+  process.env['INPUT_WRITE_NEXT_BUMP'] = 'true'
+  const np = process.execPath
+  const ip = path.join(__dirname, '..', 'lib', 'main.js')
+  const options: cp.ExecFileSyncOptions = {
+    env: process.env
+  }
+  expect(
+    cp
+      .execFileSync(np, [ip], options)
+      .toString()
+      .includes('::set-output name=next_bump::major')
+  ).toBeTruthy()
+})
