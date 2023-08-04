@@ -23,7 +23,7 @@ jobs:
         id: version
         with:
           rush_path: './__tests__/test-rush'
-          is_prelease: 'true'
+          is_prerelease: 'true'
 
       - name: Show markdown
         run: echo "nextBump is ${{ steps.version.outputs.next_bump }}"
