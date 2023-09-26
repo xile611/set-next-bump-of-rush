@@ -1,0 +1,11 @@
+{
+  "projects": [
+    {
+      "packageName": "@test/main",
+      "projectFolder": "packages/main-proj",
+      "tags": ["package"],
+      "shouldPublish": false,
+      "versionPolicyName": "main"
+    }
+  ]
+}

@@ -3,15 +3,15 @@ import {join} from 'path'
 import {readFileSync, writeFileSync} from 'fs'
 import {parse, SemVer} from 'semver'
 
-// interface RushJson {
-//   projects: {
-//     packageName: string
-//     tags?: string[]
-//     projectFolder: string
-//     shouldPublish?: boolean
-//     versionPolicyName?: string
-//   }[]
-// }
+interface RushJson {
+  projects: {
+    packageName: string
+    tags?: string[]
+    projectFolder: string
+    shouldPublish?: boolean
+    versionPolicyName?: string
+  }[]
+}
 interface VersionPolicyItem {
   definitionName?: 'lockStepVersion' | 'individualVersion'
   policyName: string
@@ -115,5 +115,51 @@ export const writeNextBump = (
     writeJsonFile(rushPath, versionPoliciesPath, versionPoliciesJson)
   } else {
     core.warning(`[warn] can't read version policies file`)
+  }
+}
+
+export const getCurrentVersionOfMainPackage = (
+  rushPath = './',
+  policyName?: string
+): {mainVersion?: string; version: string} | null | undefined => {
+  const versionPoliciesPath = 'common/config/rush/version-policies.json'
+  const versionPoliciesJson = findJsonFile<VersionPolicyItem[]>(
+    rushPath,
+    versionPoliciesPath
+  )
+  const policyItem = policyName
+    ? versionPoliciesJson?.find(entry => entry.policyName === policyName)
+    : versionPoliciesJson?.[0]
+
+  if (!policyItem) {
+    return null
+  }
+
+  const mainProjectName = policyItem.mainProject
+  const rushJson = findJsonFile<RushJson>(rushPath, 'rush.json')
+
+  if (!rushJson?.projects) {
+    return {
+      version: policyItem.version
+    }
+  }
+
+  const project = mainProjectName
+    ? rushJson.projects.find(proj => proj.packageName === mainProjectName)
+    : rushJson.projects.find(
+        proj => proj.versionPolicyName === policyItem.policyName
+      )
+
+  if (!project) {
+    return null
+  }
+  const projectPackageJson = findJsonFile<{version?: string}>(
+    rushPath,
+    `${project.projectFolder}/package.json`
+  )
+
+  return {
+    mainVersion: projectPackageJson?.version,
+    version: policyItem.version
   }
 }

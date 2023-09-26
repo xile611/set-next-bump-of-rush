@@ -41,21 +41,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const read_policies_1 = __nccwpck_require__(6027);
+const semver_1 = __nccwpck_require__(1383);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const rushPath = core.getInput('rush_path');
             const policyName = core.getInput('policy_name');
             const releaseVersion = core.getInput('release_version');
-            const isPrerelease = core.getInput('is_prerelease');
+            const isPrerelease = core.getInput('is_prerelease') === 'true';
             const needWrite = core.getInput('write_next_bump');
-            const parsedBump = isPrerelease === 'true'
+            const parsedBump = isPrerelease
                 ? 'prerelease'
                 : releaseVersion
                     ? (0, read_policies_1.parseNextBumpFromVersion)(releaseVersion)
                     : undefined;
             if (!parsedBump) {
-                if (isPrerelease !== 'true' && !releaseVersion) {
+                if (isPrerelease && !releaseVersion) {
                     core.warning(`[warn] you should add parameter 'release_version' when 'is_prerelease' is false or empty`);
                 }
                 else {
@@ -64,6 +65,17 @@ function run() {
             }
             else {
                 core.info(`[info] parse nextBump(${parsedBump}) from release_verison: ${releaseVersion}`);
+            }
+            if (releaseVersion) {
+                const versions = (0, read_policies_1.getCurrentVersionOfMainPackage)(rushPath, policyName);
+                if ((versions === null || versions === void 0 ? void 0 : versions.version) && !(0, semver_1.gt)(releaseVersion, versions.version)) {
+                    core.setFailed(`[error] the release version ${releaseVersion} is not greater than version(${versions.version}) in version-policy`);
+                    return;
+                }
+                if ((versions === null || versions === void 0 ? void 0 : versions.mainVersion) && !(0, semver_1.gt)(releaseVersion, versions.mainVersion)) {
+                    core.setFailed(`[error] the release version ${releaseVersion} is not greater than version(${versions.mainVersion}) in package.json`);
+                    return;
+                }
             }
             if (needWrite === 'true' && parsedBump) {
                 const nextBump = (0, read_policies_1.readBumpType)(rushPath, policyName);
@@ -119,7 +131,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.writeNextBump = exports.parseNextBumpFromVersion = exports.readBumpType = exports.findJsonFile = exports.writeJsonFile = void 0;
+exports.getCurrentVersionOfMainPackage = exports.writeNextBump = exports.parseNextBumpFromVersion = exports.readBumpType = exports.findJsonFile = exports.writeJsonFile = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const path_1 = __nccwpck_require__(1017);
 const fs_1 = __nccwpck_require__(7147);
@@ -198,6 +210,35 @@ const writeNextBump = (nextBump, rushPath = './', policyName) => {
     }
 };
 exports.writeNextBump = writeNextBump;
+const getCurrentVersionOfMainPackage = (rushPath = './', policyName) => {
+    const versionPoliciesPath = 'common/config/rush/version-policies.json';
+    const versionPoliciesJson = (0, exports.findJsonFile)(rushPath, versionPoliciesPath);
+    const policyItem = policyName
+        ? versionPoliciesJson === null || versionPoliciesJson === void 0 ? void 0 : versionPoliciesJson.find(entry => entry.policyName === policyName)
+        : versionPoliciesJson === null || versionPoliciesJson === void 0 ? void 0 : versionPoliciesJson[0];
+    if (!policyItem) {
+        return null;
+    }
+    const mainProjectName = policyItem.mainProject;
+    const rushJson = (0, exports.findJsonFile)(rushPath, 'rush.json');
+    if (!(rushJson === null || rushJson === void 0 ? void 0 : rushJson.projects)) {
+        return {
+            version: policyItem.version
+        };
+    }
+    const project = mainProjectName
+        ? rushJson.projects.find(proj => proj.packageName === mainProjectName)
+        : rushJson.projects.find(proj => proj.versionPolicyName === policyItem.policyName);
+    if (!project) {
+        return null;
+    }
+    const projectPackageJson = (0, exports.findJsonFile)(rushPath, `${project.projectFolder}/package.json`);
+    return {
+        mainVersion: projectPackageJson === null || projectPackageJson === void 0 ? void 0 : projectPackageJson.version,
+        version: policyItem.version
+    };
+};
+exports.getCurrentVersionOfMainPackage = getCurrentVersionOfMainPackage;
 
 
 /***/ }),

@@ -1,9 +1,9 @@
 [
   {
     "definitionName": "lockStepVersion",
-    "policyName": "vgrammarMain",
+    "policyName": "main",
     "version": "0.5.2",
-    "mainProject": "@visactor/vgrammar",
+    "mainProject": "@test/main",
     "nextBump": "patch"
   }
 ]

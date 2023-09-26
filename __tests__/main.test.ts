@@ -51,20 +51,56 @@ test('test run when set is_prerelease', () => {
   console.log(cp.execFileSync(np, [ip], options).toString())
 })
 
-// test('test run when set is_prerelease', () => {
-//   process.env['INPUT_RUSH_PATH'] = './__tests__/test-rush-2'
-//   process.env['INPUT_IS_PRERELEASE'] = 'false'
-//   process.env['INPUT_RELEASE_VERSION'] = '2.0.0'
-//   process.env['INPUT_WRITE_NEXT_BUMP'] = 'true'
-//   const np = process.execPath
-//   const ip = path.join(__dirname, '..', 'lib', 'main.js')
-//   const options: cp.ExecFileSyncOptions = {
-//     env: process.env
-//   }
-//   expect(
-//     cp
-//       .execFileSync(np, [ip], options)
-//       .toString()
-//       .includes('::set-output name=next_bump::major')
-//   ).toBeTruthy()
-// })
+test('test when the release version is equal to the version of version-policy', () => {
+  process.env['INPUT_RUSH_PATH'] = './__tests__/test-rush'
+  process.env['INPUT_IS_PRERELEASE'] = 'false'
+  process.env['INPUT_RELEASE_VERSION'] = '0.5.2'
+  const np = process.execPath
+  const ip = path.join(__dirname, '..', 'lib', 'main.js')
+  const options: cp.ExecFileSyncOptions = {
+    env: process.env
+  }
+
+  try {
+    cp.execFileSync(np, [ip], options)
+  } catch (e) {
+    expect(e).not.toBeUndefined()
+    expect((e as any).toString().includes('Error')).toBeTruthy()
+  }
+})
+
+test('test when the release version is smaller than the version of version-policy', () => {
+  process.env['INPUT_RUSH_PATH'] = './__tests__/test-rush'
+  process.env['INPUT_IS_PRERELEASE'] = 'false'
+  process.env['INPUT_RELEASE_VERSION'] = '0.5.1'
+  const np = process.execPath
+  const ip = path.join(__dirname, '..', 'lib', 'main.js')
+  const options: cp.ExecFileSyncOptions = {
+    env: process.env
+  }
+
+  try {
+    cp.execFileSync(np, [ip], options)
+  } catch (e) {
+    expect(e).not.toBeUndefined()
+    expect((e as any).toString().includes('Error')).toBeTruthy()
+  }
+})
+
+test('test when the release version is greater than the version of version-policy', () => {
+  process.env['INPUT_RUSH_PATH'] = './__tests__/test-rush'
+  process.env['INPUT_IS_PRERELEASE'] = 'false'
+  process.env['INPUT_RELEASE_VERSION'] = '0.5.7'
+  const np = process.execPath
+  const ip = path.join(__dirname, '..', 'lib', 'main.js')
+  const options: cp.ExecFileSyncOptions = {
+    env: process.env
+  }
+
+  try {
+    cp.execFileSync(np, [ip], options)
+  } catch (e) {
+    expect(e).not.toBeUndefined()
+    expect((e as any).toString()).toBe('')
+  }
+})
